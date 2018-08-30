@@ -27,5 +27,12 @@
         android:onClick="onNetworkFlat"
         android:text="网络flat" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onTestProtoBuf"
+        android:text="测试protobuf" />
+
+
 
 </LinearLayout>

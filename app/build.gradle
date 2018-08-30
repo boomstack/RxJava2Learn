@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.boomstack.rxjava2learn"
-        minSdkVersion 17
+        minSdkVersion 24
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -15,6 +15,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -33,4 +37,7 @@ dependencies {
     //Gson converter
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
+    compile 'org.reactivestreams:reactive-streams:1.0.2'
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.4.0'
+
 }

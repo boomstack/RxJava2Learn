@@ -9,6 +9,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
+
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Flowable;
+import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -53,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     //click
     public void onBasic(View view) {
-        Observable.create(new ObservableOnSubscribe<Integer>() {
+        Disposable d = Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> e) throws Exception {
                 e.onNext(1);
@@ -69,9 +79,52 @@ public class MainActivity extends AppCompatActivity {
                 Utils.holaPrint(String.valueOf(integer));
             }
         });
+        if (!d.isDisposed()) {
+            d.dispose();
+        }
     }
 
     public void onNetwork(View view) {
+        Disposable disposable = Observable.interval(1000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(Long aLong) throws Exception {
+
+                    }
+                });
+        disposable.dispose();
+        Flowable<Long> flowable = Flowable.interval(1000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread());
+        flowable.subscribe(new Subscriber<Long>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
+            }
+
+            @Override
+            public void onNext(Long aLong) {
+
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+        flowable.subscribe(new Consumer<Long>() {
+            @Override
+            public void accept(Long aLong) throws Exception {
+
+            }
+        });
+
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -148,5 +201,28 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    public void onTestProtoBuf(View view) {
+        Myproto.Person.Builder persionBuilder = Myproto.Person.newBuilder();
+        persionBuilder.setId(123);
+        persionBuilder.setName("Ethan");
+        Myproto.Person.Phone phoneOne = Myproto.Person.Phone.newBuilder().setNumber("15710069830").setType(Myproto.Person.PhoneType.MOBILE).build();
+        Myproto.Person.Phone phoneTwo = Myproto.Person.Phone.newBuilder().setNumber("18811497512").setType(Myproto.Person.PhoneType.MOBILE).build();
+        persionBuilder.addPhone(phoneOne);
+        persionBuilder.addPhone(phoneTwo);
+        Myproto.Person person = persionBuilder.build();
+
+        byte[] buff = person.toByteArray();
+
+        if (buff != null && buff.length > 0) {
+            try {
+                Myproto.Person outputPerson = Myproto.Person.parseFrom(buff);
+                System.out.println("ID:" + outputPerson.getId() + " \nname: " + outputPerson.getName());
+                outputPerson.getPhoneList().forEach(phone -> System.out.println("phone: " + phone.getNumber()));
+            } catch (InvalidProtocolBufferException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

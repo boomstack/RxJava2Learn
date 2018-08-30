@@ -39,5 +39,6 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
     compile 'org.reactivestreams:reactive-streams:1.0.2'
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.4.0'
+    compile 'com.writingminds:FFmpegAndroid:0.3.2'
 
 }

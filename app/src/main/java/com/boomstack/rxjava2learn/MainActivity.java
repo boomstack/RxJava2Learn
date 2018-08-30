@@ -9,6 +9,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
+import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 
@@ -58,6 +63,37 @@ public class MainActivity extends AppCompatActivity {
 
     private void initData() {
         disposableContainer = new CompositeDisposable();
+        loadLib();
+    }
+
+    private void loadLib() {
+        FFmpeg fFmpeg = FFmpeg.getInstance(getApplicationContext());
+        try {
+            fFmpeg.loadBinary(new LoadBinaryResponseHandler() {
+                @Override
+                public void onFailure() {
+                    System.out.println();
+                }
+
+                @Override
+                public void onSuccess() {
+                    System.out.println();
+                }
+
+                @Override
+                public void onStart() {
+                    System.out.println();
+                }
+
+                @Override
+                public void onFinish() {
+                    System.out.println();
+                }
+            });
+        } catch (FFmpegNotSupportedException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -204,25 +240,60 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onTestProtoBuf(View view) {
-        Myproto.Person.Builder persionBuilder = Myproto.Person.newBuilder();
-        persionBuilder.setId(123);
-        persionBuilder.setName("Ethan");
-        Myproto.Person.Phone phoneOne = Myproto.Person.Phone.newBuilder().setNumber("15710069830").setType(Myproto.Person.PhoneType.MOBILE).build();
-        Myproto.Person.Phone phoneTwo = Myproto.Person.Phone.newBuilder().setNumber("18811497512").setType(Myproto.Person.PhoneType.MOBILE).build();
-        persionBuilder.addPhone(phoneOne);
-        persionBuilder.addPhone(phoneTwo);
-        Myproto.Person person = persionBuilder.build();
+        FFmpeg fFmpeg = FFmpeg.getInstance(getApplicationContext());
+        String cmd = "-i /storage/emulated/0/msg.amr -acodec libmp3lame /storage/emulated/0/msg2.mp3";
 
-        byte[] buff = person.toByteArray();
+        String[] cmds = cmd.split(" ");
+        try {
+            fFmpeg.execute(cmds, new ExecuteBinaryResponseHandler() {
 
-        if (buff != null && buff.length > 0) {
-            try {
-                Myproto.Person outputPerson = Myproto.Person.parseFrom(buff);
-                System.out.println("ID:" + outputPerson.getId() + " \nname: " + outputPerson.getName());
-                outputPerson.getPhoneList().forEach(phone -> System.out.println("phone: " + phone.getNumber()));
-            } catch (InvalidProtocolBufferException e) {
-                e.printStackTrace();
-            }
+                @Override
+                public void onSuccess(String message) {
+                    System.out.println();
+                }
+
+                @Override
+                public void onProgress(String message) {
+                    System.out.println("holamsg: " + message);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    System.out.println();
+                }
+
+                @Override
+                public void onStart() {
+                    System.out.println();
+                }
+
+                @Override
+                public void onFinish() {
+                    System.out.println();
+                }
+            });
+        } catch (FFmpegCommandAlreadyRunningException e) {
+            e.printStackTrace();
         }
+//        Myproto.Person.Builder persionBuilder = Myproto.Person.newBuilder();
+//        persionBuilder.setId(123);
+//        persionBuilder.setName("Ethan");
+//        Myproto.Person.Phone phoneOne = Myproto.Person.Phone.newBuilder().setNumber("15710069830").setType(Myproto.Person.PhoneType.MOBILE).build();
+//        Myproto.Person.Phone phoneTwo = Myproto.Person.Phone.newBuilder().setNumber("18811497512").setType(Myproto.Person.PhoneType.MOBILE).build();
+//        persionBuilder.addPhone(phoneOne);
+//        persionBuilder.addPhone(phoneTwo);
+//        Myproto.Person person = persionBuilder.build();
+//
+//        byte[] buff = person.toByteArray();
+//
+//        if (buff != null && buff.length > 0) {
+//            try {
+//                Myproto.Person outputPerson = Myproto.Person.parseFrom(buff);
+//                System.out.println("ID:" + outputPerson.getId() + " \nname: " + outputPerson.getName());
+//                outputPerson.getPhoneList().forEach(phone -> System.out.println("phone: " + phone.getNumber()));
+//            } catch (InvalidProtocolBufferException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 }
